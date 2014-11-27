@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="heatmaps">
+	<head>
+		<!-- Meta, title, CSS, favicons, etc. -->
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+		<title>API Documentation | Heatmaps.tf</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		
+		<base href="http://heatmaps.tf/">
+
+		<!-- Favicons -->
+		<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
+		<link rel="icon" href="/favicon.ico">
+		<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+		<style type="text/css">
+			.tabbed {
+				padding-left:20px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Heatmaps.tf &mdash; API Documentation</h1>
+			<hr />
+			<div>
+				<h2>About</h2>
+				<div class="tabbed">
+					<p class="lead">Heatmaps are just the beginning. We'd like to see what you can do with our datasets, to that end all of our data is free to use within your own services.</p>
+				</div>
+				<h3>License</h3>
+				<div class="tabbed">
+					<p>All of our data is licensed under the <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0</a> license. All we ask is that you include the logos and links to our data providers prominently alongside (or within a dialog/modal) any graphics or charts produced with our data.</p>
+				</div>
+				<h3>Rate Limiting</h3>
+				<div class="tabbed">
+					<p>The API is rate limited to a maximum of 20 requests per second per client. We ask that you respect this limit and do not attempt to circumvent it.</p>
+				</div>
+			</div>
+			<hr />
+			<div>
+				<h2>GET /data/maps.json</h2>
+				<p class="lead tabbed">Returns a list of all maps <strong>with valid overviews</strong> - it is possible for a map to be in our system and not have a valid overview.</p>
+				<h3>Arguments</h3>
+				<div class="tabbed">
+					<p>None available</p>
+				</div>
+				<h3>Response</h3>
+				<div class="tabbed">
+					<p>Array of map objects.</p>
+					<p>Each map object contains:</p>
+					<ul>
+						<li><strong>name</strong> - The map's file name</li>
+						<li><strong>kill_count</strong> - The total number of kills associated with the map</li>
+					</ul>
+				</div>
+				<h3>Examples</h3>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3 class="panel-title">/data/maps.json</h3>
+					</div>
+					<div class="panel-body">
+						<pre id="maps_response">
+					
+						</pre>
+					</div>
+				</div>
+			</div>
+			<hr />
+			<div>
+				<h2>GET /data/kills/&lt;map&gt;.json</h2>
+				<p class="lead tabbed">Returns a list of kills (consisting of the fields specified) from <code>&lt;map&gt;</code> with respect to the filters given.</p>
+				<h3>Arguments</h3>
+				<div class="tabbed">
+					<h4>fields</h4>
+					<div class="tabbed">
+						<p>Comma separated values of the kill fields to be returned. Valid fields are:</p>
+						<ul>
+							<li><strong>id</strong> - The internal identifier for this kill</li> 
+							<li><strong>timestamp</strong> - The UNIX timestamp at which this kill occured</li> 
+							<li><strong>killer_class</strong> - The class of the killer (see <a href="api.html#class-indexes">Class Indexes</a>)</li> 
+							<li><strong>killer_weapon</strong> - The weapon of the killer (see <a href="api.html#item-indexes">Item Indexes</a>)</li> 
+							<li><strong>killer_x</strong></li> 
+							<li><strong>killer_y</strong></li> 
+							<li><strong>killer_z</strong></li> 
+							<li><strong>victim_class</strong> - The class of the killer (see <a href="api.html#class-indexes">Class Indexes</a>)</li> 
+							<li><strong>victim_x</strong></li> 
+							<li><strong>victim_y</strong></li> 
+							<li><strong>victim_z</strong></li> 
+							<li><strong>customkill</strong> - The custom kill bits for this kill (see <a href="api.html#custom-kill">Custom Kill</a>)</li> 
+							<li><strong>damagebits</strong> - The damage bits for this kill (see <a href="api.html#damage-bits">Damage Bits</a>)</li> 
+							<li><strong>death_flags</strong> - The death flags for this kill (see <a href="api.html#death-flags">Death Flags</a>)</li> 
+							<li><strong>team</strong> - The team of the killer</li>
+						</ul>
+					</div>
+					<h4>limit</h4>
+					<div class="tabbed">
+						<p>Number indicating how many results, at maximum, should be returned.</p>
+					</div>
+					<h4>victim_class</h4>
+					<div class="tabbed">
+						<p>Comma separated values of classes that filters the result set to include only kills where the victim is one of the classes. Valid classes are:</p>
+						<ul>
+							<li>unknown</li>
+							<li>scout</li>
+							<li>sniper</li>
+							<li>soldier</li>
+							<li>demoman</li>
+							<li>medic</li>
+							<li>heavy</li>
+							<li>pyro</li>
+							<li>spy</li>
+							<li>engineer</li>
+						</ul>
+					</div>
+					<h4>killer_class</h4>
+					<div class="tabbed">
+						<p>Comma separated values of classes that filters the result set to include only kills where the killer is one of the classes. Valid classes are:</p>
+						<ul>
+							<li>unknown</li>
+							<li>scout</li>
+							<li>sniper</li>
+							<li>soldier</li>
+							<li>demoman</li>
+							<li>medic</li>
+							<li>heavy</li>
+							<li>pyro</li>
+							<li>spy</li>
+							<li>engineer</li>
+						</ul>
+					</div>
+					<h4>killer_team</h4>
+					<div class="tabbed">
+						<p>String that filters the result set to only include kills where the killer is on the specified team. Valid teams are:</p>
+						<ul>
+							<li>teamless</li>
+							<li>spectator</li>
+							<li>red</li>
+							<li>blu</li>
+						</ul>
+					</div>
+				</div>
+				<h3>Response</h3>
+				<div class="tabbed">
+					<p>Object containing a <code>map_data</code> object, an array of <code>fields</code>, and an array of <code>kills</code></p>
+					<p>The <code>map_data</code> object contains:</p>
+					<ul>
+						<li><strong>name</strong> - The file name of the map</li>
+						<li><strong>offset_x</strong> - The x offset of the map's overview</li>
+						<li><strong>offset_y</strong> - The y offset of the map's overview</li>
+						<li><strong>scale</strong> - The scale of the map's overview</li>
+					</ul>
+					<p>The <code>fields</code> array contains the order of the keys within the <code>kills</code> array</p>
+					<p>The <code>kills</code> array contains sub arrays of the data requested. The order of the sub arrays is determined by the <code>fields</code> array.
+				</div>
+				<h3>Examples</h3>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3 class="panel-title">/data/kills/pl_goldrush.json?limit=50</h3>
+					</div>
+					<div class="panel-body">
+						<pre id="kills_response_1">
+					
+						</pre>
+					</div>
+				</div>
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+						<h3 class="panel-title">/data/kills/pl_goldrush.json?killer_class=sniper&amp;victim_class=medic</h3>
+					</div>
+					<div class="panel-body">
+						<pre id="kills_response_2">
+					
+						</pre>
+					</div>
+				</div>
+			</div>
+			<hr />
+			<div>
+				<h2>Appendix</h2>
+				<h3 id="class-indexes">Class Indexes</h3>
+				<div class="tabbed">
+					<p>Any class indexes returned by our API will use the TF2 Engine's class indexing system. This is defined as follows:</p>
+					<ul>
+						<li>0 &rarr; Unknown</li>
+						<li>1 &rarr; Scout</li>
+						<li>2 &rarr; Sniper</li>
+						<li>3 &rarr; Soldier</li>
+						<li>4 &rarr; Demoman</li>
+						<li>5 &rarr; Medic</li>
+						<li>6 &rarr; Heavy</li>
+						<li>7 &rarr; Pyro</li>
+						<li>8 &rarr; Spy</li>
+						<li>9 &rarr; Engineer</li>
+					</ul>
+				</div>
+				<h3 id="item-indexes">Item Indexes</h3>
+				<div class="tabbed">
+					<p>Any positive integer is a standard TF2 Item Definiton Index, any negative number is a custom extension:</p>
+					<ul>
+						<li>-1 &rarr; Sentry</li>
+						<li>-2 &rarr; Mini-Sentry</li>
+					</ul>
+				</div>
+				<h3 id="custom-kill">Custom Kill</h3>
+				<div class="tabbed">
+					<p><code>customkill</code> is an integer specifying one of the following kill types:</p>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Custom Kill Type</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr><td>1</td><td>Headshot</td></tr>
+							<tr><td>2</td><td>Backstab</td></tr>
+							<tr><td>3</td><td>Burning</td></tr>
+							<tr><td>4</td><td>Wrench Fix</td></tr>
+							<tr><td>5</td><td>Minigun</td></tr>
+							<tr><td>6</td><td>Suicide</td></tr>
+							<tr><td>7</td><td>Hadouken Taunt (Pyro)</td></tr>
+							<tr><td>8</td><td>Burning Flare</td></tr>
+							<tr><td>9</td><td>High Noon Taunt (Heavy)</td></tr>
+							<tr><td>10</td><td>Grand Slam Taunt (Scout)</td></tr>
+							<tr><td>11</td><td>Penetrate My Team</td></tr>
+							<tr><td>12</td><td>Penetrate All Players</td></tr>
+							<tr><td>13</td><td>Fencing Taunt (Spy)</td></tr>
+							<tr><td>14</td><td>Penetrate Headshot</td></tr>
+							<tr><td>15</td><td>Arrow Stab Taunt (Sniper)</td></tr>
+							<tr><td>16</td><td>Telefrag</td></tr>
+							<tr><td>17</td><td>Burning Arrow</td></tr>
+							<tr><td>18</td><td>Flyingburn</td></tr>
+							<tr><td>19</td><td>Pumpkin Bomb</td></tr>
+							<tr><td>20</td><td>Decapitation</td></tr>
+							<tr><td>21</td><td>Grenade Taunt (Soldier)</td></tr>
+							<tr><td>22</td><td>Baseball</td></tr>
+							<tr><td>23</td><td>Charge Impact</td></tr>
+							<tr><td>24</td><td>Barbarian Swing Taunt (Demoman)</td></tr>
+							<tr><td>25</td><td>Air Sticky Burst</td></tr>
+							<tr><td>26</td><td>Defensive Sticky (Scottish Resistance?)</td></tr>
+							<tr><td>27</td><td>Pickaxe</td></tr>
+							<tr><td>28</td><td>Direct Hit Rocket</td></tr>	
+							<tr><td>29</td><td>Decapitation Boss</td></tr>
+							<tr><td>30</td><td>Stickbomb Explosion</td></tr>
+							<tr><td>31</td><td>Aegis Round</td></tr>
+							<tr><td>32</td><td>Flare Explosion</td></tr>
+							<tr><td>33</td><td>Boots Stomp</td></tr>
+							<tr><td>34</td><td>Plasma</td></tr>
+							<tr><td>35</td><td>Plasma Charged</td></tr>
+							<tr><td>36</td><td>Plasma Gib</td></tr>
+							<tr><td>37</td><td>Practice Sticky</td></tr>
+							<tr><td>38</td><td>Eyeball Rocket</td></tr>
+							<tr><td>39</td><td>Headshot Decapitation</td></tr>
+							<tr><td>40</td><td>Armageddon Taunt (Pyro)</td></tr>
+							<tr><td>41</td><td>Flare Pellet</td></tr>
+							<tr><td>42</td><td>Cleaver</td></tr>
+							<tr><td>43</td><td>Cleaver Crit</td></tr>
+							<tr><td>44</td><td>Sapper Recorder Death</td></tr>
+							<tr><td>45</td><td>Merasmus Player Bomb</td></tr>
+							<tr><td>46</td><td>Merasmus Grenade</td></tr>
+							<tr><td>47</td><td>Merasmus Zap</td></tr>
+							<tr><td>48</td><td>Merasmus Decapitation</td></tr>
+							<tr><td>49</td><td>Cannonball Push</td></tr>
+							<tr><td>50</td><td>Guitar Riff Taunt (UNUSED)</td></tr>
+						</tbody>
+					</table>
+				</div>
+				<h3 id="death-flags">Death Flags</h3>
+				<div class="tabbed">
+					<p>Death flags is a bitfield containing the following flags:</p>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Death Flag</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr><td>1</td><td>Killer Domination</td></tr>
+							<tr><td>2</td><td>Assister Domination</td></tr>
+							<tr><td>4</td><td>Killer Revenge</td></tr>
+							<tr><td>8</td><td>Assister Revenge</td></tr>
+							<tr><td>16</td><td>First Blood</td></tr>
+							<tr><td>32</td><td>Dead Ringer</td></tr>
+							<tr><td>64</td><td>Interrupted</td></tr>
+							<tr><td>128</td><td>Gibbed</td></tr>
+							<tr><td>256</td><td>Purgatory</td></tr>
+						</tbody>
+					</table>
+				</div>
+				<!--<h3 id="damage-bits">Damage Bits</h3>-->
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		$( "#maps_response" ).load( "/data/maps.json" );
+		$( "#kills_response_1" ).load( "/data/kills/pl_goldrush.json?limit=50" );
+		$( "#kills_response_2" ).load( "/data/kills/pl_goldrush.json?killer_class=sniper&victim_class=medic" );
+	</script>
+</html>

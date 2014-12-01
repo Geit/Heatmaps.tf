@@ -56,7 +56,7 @@
 					
 					<ul class="nav nav-pills nav-stacked maps">
 						<li style="display:none"></li>
-						<li class="map" ng-repeat="map in maps | filter: {name: mapSearchQuery} | startAt: mapToStartAt | limitTo: mapsToList" ng-class="{active:map.isActive}">
+						<li class="map" ng-repeat="map in maps | filter: mapListCountFilter | filter: {name: mapSearchQuery} | startAt: mapToStartAt | limitTo: mapsToList" ng-class="{active:map.isActive}">
 							<a ng-href="/{{map.name}}" ng-click="updateMapList(map.index)">
 								<h4>{{map.name}}</h4>
 								<strong><ng-pluralize count="map.kill_count"
@@ -68,8 +68,8 @@
 					</ul>
 					<div class="row ng-hide" ng-show="maps">
 						<div class="col-xs-2 text-left paginationArrow"><a href="#" ng-hide="mapToStartAt <= 0" ng-click="mapToStartAt =  mapToStartAt - mapsToList"><span class="glyphicon glyphicon-arrow-left"></span></a></div>
-						<div class="col-xs-8 text-center paginationText">Page {{ Math.floor((mapToStartAt  / mapsToList) + 1) }} of {{ Math.ceil((maps| filter: {name: mapSearchQuery}).length /  mapsToList) }}</div>
-						<div class="col-xs-2 text-right paginationArrow"><a href="#" ng-hide="mapToStartAt + mapsToList > (maps| filter: {name: mapSearchQuery}).length" ng-click="mapToStartAt =  mapToStartAt + mapsToList"><span class="glyphicon glyphicon-arrow-right"></span></a></div>
+						<div class="col-xs-8 text-center paginationText">Page {{ Math.floor((mapToStartAt  / mapsToList) + 1) }} of {{ Math.ceil((maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length /  mapsToList) }}</div>
+						<div class="col-xs-2 text-right paginationArrow"><a href="#" ng-hide="mapToStartAt + mapsToList > (maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length" ng-click="mapToStartAt =  mapToStartAt + mapsToList"><span class="glyphicon glyphicon-arrow-right"></span></a></div>
 					</div>
 					 
 					<div id="footer" class="text-center visible-lg">

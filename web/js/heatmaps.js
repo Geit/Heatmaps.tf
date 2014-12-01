@@ -295,6 +295,8 @@ heatmaps.controller('HeatmapsGlobal',
 
 	}
 	
+	$scope.mapListCountFilter = function(value){ return value.kill_count > 0};
+	
 	var updateCopyButton = function(){
 		$scope.copyButton.setData("text/plain", 'http://heatmaps.tf/' + $scope.mapData.map_data.name + '?radius=' + $("#radius-slider").val() + '&intensity=' + $("#intensity-slider").val() + '&filters=' + encodeURIComponent(JSON.stringify($scope.currentFilters)) + '&zoomSettings=' + encodeURIComponent(JSON.stringify(heatmapData.zoom)));
 	}

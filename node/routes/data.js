@@ -39,7 +39,7 @@ router.get('/', function(req, res) {
 
 router.get('/maps.json', function(req, res) {
 	// Respond with a list of maps
-	global.mysqlConnection.query('SELECT `maps`.`name`, COUNT(*) AS kill_count FROM `kills` LEFT JOIN `maps` ON `kills`.`map_id`=`maps`.`id` WHERE `maps`.overview_state = 2  GROUP BY `map_id` ORDER BY `kill_count` DESC', function(err, results) {
+	global.mysqlConnection.query('SELECT name, kill_count FROM maps WHERE overview_state = 2 ORDER BY kill_count DESC', function(err, results) {
 		if(err) throw err;
 		res.json(results);
 	});

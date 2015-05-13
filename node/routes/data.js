@@ -51,7 +51,7 @@ router.get('/kills/', function(req, res){
 
 router.get('/kills/:map.json', function(req, res) {
 	
-	global.mysqlConnection.query('SELECT `maps`.`name`, `maps`.`offset_x`, `maps`.`offset_y`, `maps`.`scale` FROM maps WHERE name = ? AND overview_state = 2 LIMIT 1', [req.param('map')], function(err, results) {
+	global.mysqlConnection.query('SELECT `maps`.`name`, `maps`.`offset_x`, `maps`.`offset_y`, `maps`.`scale`, `maps`.`kill_count` FROM maps WHERE name = ? AND overview_state = 2 LIMIT 1', [req.param('map')], function(err, results) {
 		if(results.length == 0) return res.status(404).json({error: 404, description: 'map not found'});
 		var mapData = results[0];
 		
@@ -73,6 +73,12 @@ router.get('/kills/:map.json', function(req, res) {
 			var limit_num = Math.floor(parseInt(req.param('limit')));
 			if(!isNaN(limit_num))
 				limit = "LIMIT " + limit_num;
+			if(typeof(req.param('offset')) != 'undefined')
+			{
+				var offset_num = Math.floor(parseInt(req.param('offset')));
+				if(!isNaN(offset_num))
+					limit += " OFFSET " + offset_num;
+			}
 		}
 		
 		//WHERE components
@@ -110,14 +116,14 @@ router.get('/kills/:map.json', function(req, res) {
 		if(typeof(req.param('mindist')) != 'undefined') {
 			var mindist_num = parseInt(req.param('mindist'));
 			if(!isNaN(mindist_num))
-				where += " AND distance_squared > " + Math.pow(mindist_num, 2) + " ";
+				where += " AND distance_squared > " + mindist_num + " ";
 		}
 		
 		// MAXIMUM DISTANCE
 		if(typeof(req.param('maxdist')) != 'undefined') {
 			var maxdist_num = parseInt(req.param('maxdist'));
 			if(!isNaN(maxdist_num))
-				where += " AND distance_squared < " + Math.pow(maxdist_num, 2) + " ";
+				where += " AND distance_squared < " + maxdist_num + " ";
 		}
 		
 		if(typeof(req.param('maxdist')) != 'undefined' || typeof(req.param('mindist')) != 'undefined') {

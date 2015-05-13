@@ -145,6 +145,8 @@ public CB_GoToNextMap(Handle:owner, Handle:result, const String:error[], any:der
 		if(FileExists(buffer, false))
 		{
 			ServerCommand("changelevel %s", NextMap);
+			Format(query, sizeof(query), "UPDATE maps SET overview_state = -1 WHERE `name`='%s' AND overview_state = 0", NextMap);
+			SQL_TQuery(g_heatmapDatabase, CB_ErrorOnly, query);
 		}
 		else
 		{

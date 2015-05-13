@@ -76,7 +76,7 @@
 }
 
 /* Animations */
-#map-list .maps .map.ng-enter,
+/* #map-list .maps .map.ng-enter,
 #map-list .maps .map.ng-leave,
 #map-list .maps .map.ng-move {
   -webkit-transition: 0.1s linear left;
@@ -98,7 +98,7 @@
 
 #map-list .maps .map.ng-leave {
   left: -500px;
-}
+} */
 
 #map-list .maps .map.ng-leave.ng-leave-active {
 }

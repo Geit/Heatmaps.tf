@@ -66,7 +66,7 @@
 							</a>
 						</li>
 					</ul>
-					<div class="row ng-hide" ng-show="maps">
+					<div class="row" ng-show="maps">
 						<div class="col-xs-2 text-left paginationArrow"><a href="#" ng-hide="mapToStartAt <= 0" ng-click="mapToStartAt =  mapToStartAt - mapsToList"><span class="glyphicon glyphicon-arrow-left"></span></a></div>
 						<div class="col-xs-8 text-center paginationText">Page {{ Math.floor((mapToStartAt  / mapsToList) + 1) }} of {{ Math.ceil((maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length /  mapsToList) }}</div>
 						<div class="col-xs-2 text-right paginationArrow"><a href="#" ng-hide="mapToStartAt + mapsToList > (maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length" ng-click="mapToStartAt =  mapToStartAt + mapsToList"><span class="glyphicon glyphicon-arrow-right"></span></a></div>
@@ -295,11 +295,11 @@
 					<p>Error Details: {{ reason }}</p>
 					<p>This error may not be fatal and we will attempt to continue.</p>
 					<h3>Troubleshooting</h3>
-					<p>If you're using a browser listed above and reading this, WebGL may be disabled, try googling how to enable it in your browser</p>
+					<p>If you're using a supported browser <a href="http://get.webgl.org/">check that WebGL is enabled</a></p>
 				</div>
 				<div class="ng-hide" ng-show="type == 'ErrNetwork'"> 
 					<p>We're sorry, but we've encountered a network error while communicating with the heatmaps.tf API.</p>
-					<p>If you're using a supported browser <a href="http://get.webgl.org/">check that WebGL is enabled</a></p>
+					 
 					<p>Error Details: {{ reason }}</p>
 					<p>This error is fatal. Please try again later.</p>
 				</div>

@@ -116,14 +116,14 @@ router.get('/kills/:map.json', function(req, res) {
 		if(typeof(req.param('mindist')) != 'undefined') {
 			var mindist_num = parseInt(req.param('mindist'));
 			if(!isNaN(mindist_num))
-				where += " AND distance_squared > " + mindist_num + " ";
+				where += " AND distance > " + mindist_num + " ";
 		}
 		
 		// MAXIMUM DISTANCE
 		if(typeof(req.param('maxdist')) != 'undefined') {
 			var maxdist_num = parseInt(req.param('maxdist'));
 			if(!isNaN(maxdist_num))
-				where += " AND distance_squared < " + maxdist_num + " ";
+				where += " AND distance < " + maxdist_num + " ";
 		}
 		
 		if(typeof(req.param('maxdist')) != 'undefined' || typeof(req.param('mindist')) != 'undefined') {

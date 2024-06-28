@@ -23,14 +23,18 @@ const validKillFields = [
 ] as const;
 
 const killsSchema = z.object({
-  fields: z.array(z.enum(validKillFields)).default(['victim_x', 'victim_y', 'team']),
+  fields: z
+    .string()
+    .default('victim_x,victim_y,team')
+    .transform(value => value.split(','))
+    .pipe(z.array(z.enum(validKillFields))),
   victim_class: z.array(z.number().int().min(0).max(9)).min(1).optional(),
   killer_class: z.array(z.number().int().min(0).max(9)).min(1).optional(),
-  killer_team: z.number().int().min(0).max(3).optional(),
-  min_dist: z.number().int().min(1).optional(),
-  max_dist: z.number().int().min(2).optional(),
-  limit: z.number().int().min(1).max(5000).default(5000),
-  offset: z.number().int().default(0),
+  killer_team: z.coerce.number().int().min(0).max(3).optional(),
+  min_dist: z.coerce.number().int().min(1).optional(),
+  max_dist: z.coerce.number().int().min(2).optional(),
+  limit: z.coerce.number().int().min(1).max(5000).default(5000).co,
+  offset: z.coerce.number().int().default(0),
 });
 
 killsRouter.get('/kills/:map.json', async (req, res) => {

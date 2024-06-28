@@ -5,7 +5,7 @@
 #include <tf2_stocks>
 #include <sdkhooks>
 
-#define PL_VERSION "0.1"
+#define PL_VERSION "1.1"
 
 new Handle:g_Database;
 

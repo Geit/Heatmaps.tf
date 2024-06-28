@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "allowJs": false,
+    "strict": true,
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "noEmit": false,
+    "strictPropertyInitialization": false,
+    "outDir": "build",
+    "esModuleInterop": true,
+    "baseUrl": "src",
+    "paths": {
+      "@core/*": ["*"]
+    }
+  },
+  "include": [
+    "src"
+  ],
+}

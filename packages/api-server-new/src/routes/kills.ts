@@ -23,13 +23,12 @@ const validKillFields = [
 ] as const;
 
 const killsSchema = z.object({
-  client: z.string(),
   fields: z.array(z.enum(validKillFields)).default(['victim_x', 'victim_y', 'team']),
-  victim_class: z.array(z.number().int().min(0).max(9)).min(1),
-  killer_class: z.array(z.number().int().min(0).max(9)).min(1),
-  killer_team: z.number().int().min(0).max(3),
-  min_dist: z.number().int().min(1),
-  max_dist: z.number().int().min(2),
+  victim_class: z.array(z.number().int().min(0).max(9)).min(1).optional(),
+  killer_class: z.array(z.number().int().min(0).max(9)).min(1).optional(),
+  killer_team: z.number().int().min(0).max(3).optional(),
+  min_dist: z.number().int().min(1).optional(),
+  max_dist: z.number().int().min(2).optional(),
   limit: z.number().int().min(1).max(5000).default(5000),
   offset: z.number().int().default(0),
 });

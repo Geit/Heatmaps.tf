@@ -33,7 +33,7 @@ const killsSchema = z.object({
   killer_team: z.coerce.number().int().min(0).max(3).optional(),
   min_dist: z.coerce.number().int().min(1).optional(),
   max_dist: z.coerce.number().int().min(2).optional(),
-  limit: z.coerce.number().int().min(1).max(5000).default(5000).co,
+  limit: z.coerce.number().int().min(1).max(5000).default(5000),
   offset: z.coerce.number().int().default(0),
 });
 

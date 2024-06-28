@@ -26,8 +26,7 @@ const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 const createApp = () => {
   const _app = express();
 
-  _app.use(mapsRouter);
-  _app.use(killsRouter);
+  _app.use('/data', mapsRouter, killsRouter);
   _app.use(errorHandler);
 
   return _app;

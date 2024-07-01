@@ -4,6 +4,7 @@ import 'express-async-errors';
 
 import mapsRouter from './routes/maps';
 import killsRouter from './routes/kills';
+import linesRouter from './routes/lines';
 import { PORT } from './config';
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
@@ -26,7 +27,7 @@ const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 const createApp = () => {
   const _app = express();
 
-  _app.use('/data', mapsRouter, killsRouter);
+  _app.use('/data', mapsRouter, killsRouter, linesRouter);
   _app.use(errorHandler);
 
   return _app;

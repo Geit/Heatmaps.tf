@@ -1,5 +1,6 @@
 import express, { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
+import cors from 'cors';
 import 'express-async-errors';
 
 import mapsRouter from './routes/maps';
@@ -27,6 +28,7 @@ const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 const createApp = () => {
   const _app = express();
 
+  _app.use(cors());
   _app.use('/data', mapsRouter, killsRouter, linesRouter);
   _app.use(errorHandler);
 

@@ -176,7 +176,7 @@
         var map = typeof urlParams['map'] != 'undefined' ? urlParams['map'] : 'koth_viaduct';
         var cullRadius = typeof urlParams['cull_radius'] != 'undefined' ? urlParams['cull_radius'] : '1';
 
-        var url = 'heatmaps.tf/maps/' + map + '/lines?fields=["class","data"]';
+        var url = '/maps/' + map + '/lines?fields=["class","data"]';
 
         if (classesSelected) url += '&classes=[' + classesSelected + ']';
 

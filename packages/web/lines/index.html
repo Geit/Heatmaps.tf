@@ -183,8 +183,8 @@
         if (team) url += '&team=' + team + '';
         cullRadius = cullRadius * 1;
         $.getJSON(url, function (data) {
-          lines = data.data;
-          if (lines.count == 0) return;
+          lines = data.lines;
+          if (lines.length == 0) return;
           var totalPoints = 0;
           console.log('TOTAL LINES: ' + lines.length);
           for (var i = 0; i < lines.length; i++) {

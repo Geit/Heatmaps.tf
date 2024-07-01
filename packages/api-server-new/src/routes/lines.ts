@@ -48,12 +48,14 @@ linesRouter.get('/lines/:map.json', async (req, res) => {
       if (params.team) query.andWhere('team', params.team);
     });
 
-  const data = await query;
+  const lines = (await query).map((row: any[]) =>
+    row.map(field => (Buffer.isBuffer(field) ? field.toString('base64') : field))
+  );
 
   return res.json({
     map_data: mapData,
     fields: params.fields,
-    data: data,
+    lines,
   });
 });
 

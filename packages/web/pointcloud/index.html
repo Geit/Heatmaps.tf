@@ -108,7 +108,7 @@
         var map = typeof urlParams['map'] != 'undefined' ? urlParams['map'] : 'koth_viaduct';
         var classes = typeof urlParams['classes'] != 'undefined' ? urlParams['classes'] : '[1,2,3,4,5,6,7,8,9]';
         $.getJSON(
-          'heatmaps.tf/maps/' +
+          '/maps/' +
             map +
             '/kills?fields=["killer_x","killer_y","killer_z","killer_class"]&limit=5000&offset=' +
             offset +

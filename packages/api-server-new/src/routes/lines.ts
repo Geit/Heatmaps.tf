@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { knex } from '../models/knex';
 import z from 'zod';
+import { tryParseClass } from '../utils/classLookup';
+import { tryParseTeam } from '../utils/teamLookup';
 
 const linesRouter = Router();
 
@@ -15,9 +17,9 @@ const linesSchema = z.object({
   classes: z
     .string()
     .optional()
-    .transform(v => v?.split(','))
+    .transform(v => v?.split(',').map(tryParseClass))
     .pipe(z.array(z.coerce.number().int().min(0).max(9)).optional()),
-  team: z.coerce.number().int().min(0).max(3).optional(),
+  team: z.string().transform(tryParseTeam).pipe( z.coerce.number().int().min(0).max(3)).optional(),
   limit: z.coerce.number().int().min(1).max(5000).default(5000),
   offset: z.coerce.number().int().default(0),
 });

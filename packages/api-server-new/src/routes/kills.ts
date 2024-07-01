@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { knex } from '../models/knex';
 import z from 'zod';
+import { tryParseClass } from '../utils/classLookup';
+import { tryParseTeam } from '../utils/teamLookup';
 
 const killsRouter = Router();
 
@@ -31,14 +33,14 @@ const killsSchema = z.object({
   victim_class: z
     .string()
     .optional()
-    .transform(v => v?.split(','))
+    .transform(v => v?.split(',').map(tryParseClass))
     .pipe(z.array(z.coerce.number().int().min(0).max(9)).optional()),
   killer_class: z
     .string()
     .optional()
-    .transform(v => v?.split(','))
+    .transform(v => v?.split(',').map(tryParseClass))
     .pipe(z.array(z.coerce.number().int().min(0).max(9)).optional()),
-  killer_team: z.coerce.number().int().min(0).max(3).optional(),
+  killer_team: z.string().transform(tryParseTeam).pipe( z.coerce.number().int().min(0).max(3)).optional(),
   min_dist: z.coerce.number().int().min(1).optional(),
   max_dist: z.coerce.number().int().min(2).optional(),
   limit: z.coerce.number().int().min(1).max(5000).default(5000),

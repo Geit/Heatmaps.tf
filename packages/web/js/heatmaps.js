@@ -330,7 +330,6 @@ heatmaps.controller('HeatmapsGlobal', [
         maxPointY = CANVAS_HEIGHT + $scope.mapData.map_data.radius,
         maxPointX = CANVAS_WIDTH + $scope.mapData.map_data.radius;
 
-      console.log(heatmapData, multiplier, scale);
       for (var i = 0; i < $scope.mapData.kills.length; i++) {
         if ($scope.mapData.kills[i][2] == 0 && $scope.displayMode == 'killers') continue;
         var x = ($scope.mapData.kills[i][0] - $scope.mapData.map_data.offset_x) / scale;
@@ -407,7 +406,7 @@ heatmaps.controller('HeatmapsGlobal', [
           heatmapBackgroundCanvas.height
         );
 
-      //if(!heatmapData.suppressDataLayer && !$scope.userSuppressDataLayer) {
+      if(!heatmapData.suppressDataLayer && !$scope.userSuppressDataLayer) {
       ctx.globalAlpha = 0.5;
       ctx.drawImage(
         heatmapWebGLCanvas,
@@ -421,7 +420,7 @@ heatmaps.controller('HeatmapsGlobal', [
         heatmapBackgroundCanvas.height
       );
       ctx.globalAlpha = 1.0;
-      //}
+      }
       requestAnimationFrameShim(redrawBackground);
     };
     requestAnimationFrameShim(redrawBackground);

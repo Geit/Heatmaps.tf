@@ -316,3 +316,13 @@
 [disabled] .noUi-handle {
 	cursor: not-allowed;
 }
+
+#intensity-slider, #radius-slider {
+	display: block;
+	position: static;
+	width: auto;
+	padding: 0;
+	color: blue;
+	inset: initial;
+	overflow: initial;
+}

@@ -40,7 +40,7 @@ const killsSchema = z.object({
     .optional()
     .transform(v => v?.split(',').map(tryParseClass))
     .pipe(z.array(z.coerce.number().int().min(0).max(9)).optional()),
-  killer_team: z.string().transform(tryParseTeam).pipe( z.coerce.number().int().min(0).max(3)).optional(),
+  killer_team: z.string().transform(tryParseTeam).pipe(z.coerce.number().int().min(0).max(3)).optional(),
   min_dist: z.coerce.number().int().min(1).optional(),
   max_dist: z.coerce.number().int().min(2).optional(),
   limit: z.coerce.number().int().min(1).max(5000).default(5000),

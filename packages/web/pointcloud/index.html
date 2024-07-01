@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Kill Point cloud</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta property="og:image" content="https://heatmaps.tf/images/heatmaps_og_logo.jpg" />
+    <style>
+      body {
+        color: #ffffff;
+        background-color: #000000;
+        margin: 0px;
+        overflow: hidden;
+      }
+      #info {
+        text-align: center;
+        font-family: 'Segoe UI', serif;
+        position: absolute;
+        top: 0;
+        left: 15px;
+      }
+      * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+      }
+      .unknown {
+        color: rgb(255, 255, 255);
+      }
+      .scout {
+        color: rgb(232, 59, 45);
+      }
+      .sniper {
+        color: rgb(239, 146, 61);
+      }
+      .soldier {
+        color: rgb(230, 230, 20);
+      }
+      .demoman {
+        color: rgb(80, 223, 80);
+      }
+      .medic {
+        color: rgb(140, 198, 72);
+      }
+      .heavy {
+        color: rgb(79, 177, 248);
+      }
+      .pyro {
+        color: rgb(41, 58, 143);
+      }
+      .spy {
+        color: rgb(146, 51, 142);
+      }
+      .enginieer {
+        color: rgb(241, 69, 140);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="info">
+      Kill Point Cloud - <span class="scout">Scout</span> <span class="sniper">Sniper</span>
+      <span class="soldier">Soldier</span> <span class="demoman">Demoman</span> <span class="medic">Medic</span>
+      <span class="heavy">Heavy</span> <span class="pyro">Pyro</span> <span class="spy">Spy</span>
+      <span class="enginieer">Enginieer</span> - WebGL required. SPACE = Up, ALT = Down, WASD = Movement. Click to lock
+      mouse
+    </div>
+    <div id="container"></div>
+
+    <script src="three.min.js"></script>
+    <script src="PointerLockControls.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+    <script>
+      var kills = [];
+      var renderer, scene, camera;
+      var pointSize = 1.8;
+      //var controls;
+      var urlParams;
+      (window.onpopstate = function () {
+        var match,
+          pl = /\+/g, // Regex for replacing addition symbol with a space
+          search = /([^&=]+)=?([^&]*)/g,
+          decode = function (s) {
+            return decodeURIComponent(s.replace(pl, ' '));
+          },
+          query = window.location.search.substring(1);
+
+        urlParams = {};
+        while ((match = search.exec(query))) urlParams[decode(match[1])] = decode(match[2]);
+      })();
+      var color_lookup = {
+        0: new THREE.Color(255 / 255, 255 / 255, 255 / 255), // unknown
+        1: new THREE.Color(232 / 255, 59 / 255, 45 / 255), // scout
+        2: new THREE.Color(239 / 255, 146 / 255, 61 / 255), // sniper
+        3: new THREE.Color(230 / 255, 230 / 255, 20 / 255), // soldier
+        4: new THREE.Color(80 / 255, 223 / 255, 80 / 255), //demoman
+        5: new THREE.Color(140 / 255, 198 / 255, 72 / 255), // medic
+        6: new THREE.Color(79 / 255, 177 / 255, 248 / 255), // heavy
+        7: new THREE.Color(41 / 255, 58 / 255, 143 / 255), // pyro
+        8: new THREE.Color(146 / 255, 51 / 255, 142 / 255), // spy
+        9: new THREE.Color(241 / 255, 69 / 255, 140 / 255), // enginieer
+      };
+
+      function getKills(offset) {
+        var map = typeof urlParams['map'] != 'undefined' ? urlParams['map'] : 'koth_viaduct';
+        var classes = typeof urlParams['classes'] != 'undefined' ? urlParams['classes'] : '[1,2,3,4,5,6,7,8,9]';
+        $.getJSON(
+          'heatmaps.tf/maps/' +
+            map +
+            '/kills?fields=["killer_x","killer_y","killer_z","killer_class"]&limit=5000&offset=' +
+            offset +
+            '&killer_class=' +
+            classes,
+          function (data) {
+            kills = data.data; //.slice(0, 1000000);
+            if (kills.count == 0) return;
+            var geometry = new THREE.Geometry();
+            for (var i = 0; i < kills.length; i++) {
+              var x = kills[i][0];
+              var y = kills[i][2];
+              var z = -kills[i][1];
+              var v = new THREE.Vector3(x, y, z);
+
+              geometry.colors.push(color_lookup[kills[i][3]]);
+              geometry.vertices.push(v);
+            }
+
+            var pcRegular = generateRegularPointcloud(geometry);
+            pcRegular.scale.set(0.2, 0.2, 0.2);
+            pcRegular.position.set(0, 0, 0);
+            scene.add(pcRegular);
+            if (offset + 5001 < data.map_data.kill_count) getKills(offset + 5001);
+          }
+        );
+      }
+
+      init();
+      animate();
+      getKills(0);
+
+      var element = document.body;
+
+      var pointerlockchange = function (event) {
+        controls.enabled =
+          document.pointerLockElement === element ||
+          document.mozPointerLockElement === element ||
+          document.webkitPointerLockElement === element;
+      };
+
+      var pointerlockerror = function (event) {};
+
+      // Hook pointer lock state change events
+      document.addEventListener('pointerlockchange', pointerlockchange, false);
+      document.addEventListener('mozpointerlockchange', pointerlockchange, false);
+      document.addEventListener('webkitpointerlockchange', pointerlockchange, false);
+
+      document.addEventListener('pointerlockerror', pointerlockerror, false);
+      document.addEventListener('mozpointerlockerror', pointerlockerror, false);
+      document.addEventListener('webkitpointerlockerror', pointerlockerror, false);
+      element.requestPointerLock =
+        element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+      element.addEventListener(
+        'click',
+        function (event) {
+          element.requestPointerLock();
+        },
+        false
+      );
+
+      function generateRegularPointcloud(geometry) {
+        var material = new THREE.PointCloudMaterial({ size: pointSize, vertexColors: true, sizeAttenuation: false });
+        var pointcloud = new THREE.PointCloud(geometry, material);
+
+        return pointcloud;
+      }
+
+      function init() {
+        container = document.getElementById('container');
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 2, 2000);
+        //camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000 );
+
+        controls = new THREE.PointerLockControls(camera);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        container.appendChild(renderer.domElement);
+        window.addEventListener('resize', onWindowResize, false);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        render();
+      }
+
+      function render() {
+        renderer.render(scene, camera);
+      }
+    </script>
+  </body>
+</html>

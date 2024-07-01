@@ -143,7 +143,6 @@ heatmaps.controller('HeatmapsGlobal',
 		$scope.fetchKillData($scope.maps[newMapIndex].name);
 		heatmapData.zoom = {scaleFactor: MIN_ZOOM,originX: 0,originY: 0};
 		$scope.loadingVisible = true;
-		ga('send', 'pageview', {'page': '/' + $scope.maps[newMapIndex].name});
 	}
 	
 	$scope.fetchKillData = function(mapName) {

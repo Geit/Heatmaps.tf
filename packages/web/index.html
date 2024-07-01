@@ -1,414 +1,426 @@
 <!DOCTYPE html>
 <html lang="en" ng-app="heatmaps" ng-controller="HeatmapsGlobal">
-	<head>
-		<!-- Meta, title, CSS, favicons, etc. -->
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="Heatmaps.tf is the home of the heatmap project for Team Fortress 2.">
-		
-		<meta property="og:image" content="http://heatmaps.tf/images/heatmaps_og_logo.jpg" />
-		
-		<title ng-bind="pageTitle + ' | Heatmaps.tf'">Home | Heatmaps.tf</title>
+  <head>
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Heatmaps.tf is the home of the heatmap project for Team Fortress 2." />
 
-		<!-- Bootstrap core CSS -->
-		<link href="/css/bootstrap.min.css" rel="stylesheet">
-		<link href="/css/heatmaps.css?v=1.06" rel="stylesheet">
-		
-		<base href="http://heatmaps.tf/">
+    <meta property="og:image" content="http://heatmaps.tf/images/heatmaps_og_logo.jpg" />
 
-		<!-- Favicons -->
-		<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
-		<link rel="icon" href="/favicon.ico">
-		<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.15/angular.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.15/angular-route.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.15/angular-animate.min.js"></script>
-		<script src="/js/angular-bootstrap.min.js"></script>
-		<script src="/js/heatmaps.js?v=1.07"></script>
-		<script src="/js/webgl-heatmap.js?v=1.07"></script>
-	</head>
-	<body>
-		<div class="container-fluid" style="height:100%">
-			<div class="hidden-lg">
-				<img src='/images/heatmaps_logo.png' class='img-responsive center-block' alt="Heatmaps.tf logo" height="70" width="215"/>
-			</div>
-			<div class="row" style="height:100%">
-				<!-- MIDDLE COLUMN -->
-				<div class="col-lg-8 col-lg-offset-2 text-center" id="overview-container">				
-					<canvas id="overview-canvas" width="1280" height="1024"></canvas>	
-					<canvas id="webgl-canvas" width="1280" height="1024"></canvas>
-					<div id="overview-loader" class="h2 ng-hide" ng-show="loadingVisible">Loading...</div>
-				</div>
-				 
-				<!-- LEFT COLUMN -->
-				<div id="map-list" class="col-lg-2 col-sm-6">
-					<div class='header'>
-						<img src='/images/heatmaps_logo.png' class='img-responsive center-block visible-lg' alt="Heatmaps.tf logo" height="70" width="215" />
-						<h2 class="hidden-lg">Map List</h2> 
-						<div class="input-group">
-							<input type="text" class="form-control" placeholder="Map Search&hellip;" ng-model="mapSearchQuery" ng-change="mapToStartAt=0">
-							<span class="input-group-btn">
-								<button class="btn btn-primary" type="button"><span class="glyphicon glyphicon-search"></span></button>
-							</span>
-						</div>
-					</div>
-					
-					<ul class="nav nav-pills nav-stacked maps">
-						<li style="display:none"></li>
-						<li class="map" ng-repeat="map in maps | filter: mapListCountFilter | filter: {name: mapSearchQuery} | startAt: mapToStartAt | limitTo: mapsToList" ng-class="{active:map.isActive}">
-							<a ng-href="/{{map.name}}" ng-click="updateMapList(map.index)">
-								<h4>{{map.name}}</h4>
-								<strong><ng-pluralize count="map.kill_count"
-									when="{'one': '1 death',
-									'other': '{} deaths'}">
-								</ng-pluralize></strong>
-							</a>
-						</li>
-					</ul>
-					<div class="row" ng-show="maps">
-						<div class="col-xs-2 text-left paginationArrow"><a href="#" ng-hide="mapToStartAt <= 0" ng-click="mapToStartAt =  mapToStartAt - mapsToList"><span class="glyphicon glyphicon-arrow-left"></span></a></div>
-						<div class="col-xs-8 text-center paginationText">Page {{ Math.floor((mapToStartAt  / mapsToList) + 1) }} of {{ Math.ceil((maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length /  mapsToList) }}</div>
-						<div class="col-xs-2 text-right paginationArrow"><a href="#" ng-hide="mapToStartAt + mapsToList > (maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length" ng-click="mapToStartAt =  mapToStartAt + mapsToList"><span class="glyphicon glyphicon-arrow-right"></span></a></div>
-					</div>
-					 
-					<div id="footer" class="text-center visible-lg">
-						<hr />
-						<a href='http://geit.co.uk'>
-							<img src='/images/r_logo_32.png' style='vertical-align:middle;' />
-						</a>
-						
-						<small class="text-muted version"><a ng-click="openAboutModal()" href="#">About</a> &mdash;<a target="_self" href="http://heatmaps.tf/api.html">API Docs</a> &mdash; v{{version}}</small>	
-						<span ng-view></span> 
-					</div>
-				</div> 
-				
-				<!-- RIGHT COLUMN -->
-				<div id="heatmap-controls" class="col-lg-2 col-sm-6">
-				
-					<h2>Controls</h2> 
-					<div>
-						<label for="intensity-slider">Intensity</label>
-						<div class="slider" id="intensity-slider"  popover="Controls the intensity of each kill." popover-placement="left" popover-trigger="mouseenter"></div> 
-						<label for="intensity-slider">Radius</label>
-						<div class="slider" id="radius-slider" popover="Controls the radius, in pixels, of each kill. Current Value: {{ mapData.map_data.radius }}px" popover-placement="left" popover-trigger="mouseenter"></div> 
-					</div>
+    <title ng-bind="pageTitle + ' | Heatmaps.tf'">Home | Heatmaps.tf</title>
 
-					<h2>Filters</h2>
-					<div>
-						<p>Filters allow you to narrow down the data displayed. Give them a try!</p>
-						<div class="text-center" style="margin-bottom:10px;">
-							<div class="btn-group">
-								<button type="button" class="btn btn-primary active" ng-model="displayMode" btn-radio="'killers'" ng-change="fetchKillData(mapData.map_data.name)">Killers</button>
-								<button type="button" class="btn btn-primary" ng-model="displayMode" btn-radio="'victims'" ng-change="fetchKillData(mapData.map_data.name)">Victims</button>
-							</div> 
-						</div>
-						<ul>
-							<li class="filter-entry" ng-repeat="(filterName, filterData) in currentFilters">
-								{{ stringifyFilter(filterName, filterData) }}
-								<a href="#" style="color:red" ng-click="removeFilter(filterName)"><span class="glyphicon glyphicon-remove"></span></a>
-							</li>
-							<li ng-show="mapData.kills.length > -1">Displaying <ng-pluralize count="mapData.kills.length" when="{'one': '1 death', 'other': '{} deaths'}"></ng-pluralize></li>
-						</ul>
-						<div class="clearfix">
-							<div class="pull-right">
-								<button class="btn btn-success " ng-click="openFiltersModal()">Add Filter</button>
-							</div>
-						</div>
-					</div>
-					
-					<h2>Data Providers</h2>
-					<div id="data-providers" class="text-center">
-						<a href='#' ng-click="openProviderModal('TF2Maps.net')"><img src='/images/providers/tf2m_small.png' alt='TF2Maps.net Logo'/></a>
-						<a href='#' ng-click="openProviderModal('TF2 Newbs')"><img src='/images/providers/tf2newbs_small.png' alt='TF2 Newbs Logo'/></a>			
-						<a href='#' ng-click="openProviderModal('Kritzkast')"><img src='/images/providers/kk_small.png' alt='Kritzkast Logo'/></a>			
-						<a href='#' ng-click="openProviderModal('TF2Pickup.net')"><img src='/images/providers/tf2pickup_small.png' alt='TF2Pickup.net Logo'/></a>	
-						<a href='#' ng-click="openProviderModal('Edge Gamers')"><img src='/images/providers/ego_small.png' alt='Edge Gamers Logo'/></a>							
-					</div>
-					<label class="btn btn-primary" ng-model="userSuppressDataLayer" btn-checkbox>Hide Data</label>
-					<button id="copy-button" class="btn btn-info" ng-hide="copyButton.isFlashUnavailable()"><span class="glyphicon glyphicon-link"></span> Get Link</button>
-				</div>
-			</div>
-			<div id="footer" class="text-center hidden-lg">
-				<hr />
-				<a href='http://geit.co.uk'>
-					<img src='/images/r_logo_32.png' style='vertical-align:middle;' />
-				</a>
-				
-				<small class="text-muted version"><a ng-click="openAboutModal()" href="#">About</a> &mdash;<a target="_self" href="http://heatmaps.tf/api.html">API Docs</a> &mdash; v{{version}}</small>	
-			</div>
-		</div>
-		<script type="text/ng-template" id="templates/filterModalMain.html">
-			<div class="modal-header">
-				<button class="close" ng-click="$dismiss('closed')" type="button">
-					<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="sr-only">Close</span>
-				</button>
-				<h2 id="filterModalTitle" class="modal-title">{{ currentStageTitle }}</h2>
-			</div>
-			<div class="modal-body">
-				<div class="ng-hide" ng-show="currentStage == 'main'">
-					<ul class="list-inline">
-						<li ng-hide="currentFilters.victim_class">
-							<button class="btn-primary btn" type="button" ng-click="setStage('victimClassSelect', 'Add Victim Class Filter')">Victim Class</button>
-						</li>
-						<li ng-hide="currentFilters.killer_class">
-							<button class="btn-primary btn" type="button" ng-click="setStage('killerClassSelect', 'Add Killer Class Filter')">Killer Class</button>
-						</li>
-						<li ng-hide="currentFilters.killer_team">
-							<button class="btn-primary btn" type="button" ng-click="setStage('killerTeamSelect', 'Add Killer Team Filter')">Killer Team</button>
-						</li>
-						<li ng-hide="currentFilters.limit">
-							<button class="btn-primary btn" type="button" ng-click="setStage('resultLimitSelect', 'Add Result Limit')">Result Limit</button>
-						</li>
-						<li ng-hide="currentFilters.mindist">
-							<button class="btn-primary btn" type="button" ng-click="setStage('minimumDistanceSelect', 'Add Minimum Distance Filter')">Minimum Distance</button>
-						</li>
-						<li ng-hide="currentFilters.maxdist">
-							<button class="btn-primary btn" type="button" ng-click="setStage('maximumDistanceSelect', 'Add Maximum Distance Filter')">Maximum Distance</button>
-						</li>
-						<!--<li>
-							<button class="btn-primary btn" type="button" ng-click="setStage('notImplemented', 'Add Weapon Filter')">Weapon</button>
-						</li>-->
-						
-					</ul>
-				</div>
-				<div class="ng-hide" ng-show="currentStage == 'notImplemented'">
-					<p class="lead">Not Implemented!</p>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-						</div>
-					</div>
-				</div>
-				<!-- VICTIM CLASS -->
-				<div class="ng-hide" ng-show="currentStage == 'victimClassSelect'">
-					<p class="lead">Select the classes you would like to display data for:</p>
-					<div class="text-center">
-						<div class="btn-group ">
-							<label class="btn btn-primary" ng-repeat="className in filters.victim_class | keys" ng-model="filters.victim_class[className]" btn-checkbox>{{className | capitalize}}</label>
-						</div>
-					</div>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-							<button class="btn-success btn" type="button" ng-click="addFilter('victim_class', classObjectToArray(filters.victim_class))">Add Filter</button>
-						</div>
-					</div>
-				</div>
-				<!-- KILLER CLASS -->
-				<div class="ng-hide" ng-show="currentStage == 'killerClassSelect'">
-					<p class="lead">Select the classes you would like to display data for:</p>
-					<div class="text-center">
-						<div class="btn-group ">
-							<label class="btn btn-primary" ng-repeat="className in filters.killer_class | keys" ng-model="filters.killer_class[className]" btn-checkbox>{{className | capitalize}}</label>
-						</div>
-					</div>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-							<button class="btn-success btn" type="button" ng-click="addFilter('killer_class', classObjectToArray(filters.killer_class))">Add Filter</button>
-						</div>
-					</div>
-				</div>
-				<!-- KILLER TEAM -->
-				<div class="ng-hide" ng-show="currentStage == 'killerTeamSelect'">
-					<p class="lead">Select the team the killer should be on:</p>
-					<div class="text-center">
-						<div class="btn-group">
-							<label class="btn btn-danger" ng-model="filters.killer_team" btn-radio="'red'">RED</label>
-							<label class="btn btn-primary" ng-model="filters.killer_team" btn-radio="'blu'">BLU</label>
-						</div>
-					</div>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-							<button class="btn-success btn" type="button" ng-click="addFilter('killer_team', filters.killer_team)">Add Filter</button>
-						</div>
-					</div>
-				</div>
-				<!-- RESULT LIMIT -->
-				<div class="ng-hide" ng-show="currentStage == 'resultLimitSelect'">
-					<p class="lead">Select the maximum number of results to fetch:</p>
-					<p>Note: You'll always get the most recent kills with a result limit.</p>
-					<div class="text-center">
-						<form name="resultLimitForm">
-							<input name="limit" type="number" ng-model="filters.limit" min="0" required></input>
-						</form>
-					</div>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-							<button class="btn-success btn" type="button" ng-disabled="!resultLimitForm.limit.$valid" ng-click="addFilter('limit', filters.limit)">Add Filter</button>
-						</div>
-					</div>
-				</div>
-				<!-- MINIMUM DISTANCE -->
-				<div class="ng-hide" ng-show="currentStage == 'minimumDistanceSelect'">
-					<p class="lead">Select the minimum kill distance (in hammer units):</p>
-					<div class="text-center">
-						<form name="minDistForm">
-							<input name="limit" type="number" ng-model="filters.mindist" min="1" required></input>
-						</form>
-					</div>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-							<button class="btn-success btn" type="button" ng-disabled="!minDistForm.limit.$valid" ng-click="addFilter('mindist', filters.mindist)">Add Filter</button>
-						</div>
-					</div>
-				</div>
-				<!-- MAXIMUM DISTANCE -->
-				<div class="ng-hide" ng-show="currentStage == 'maximumDistanceSelect'"> 
-					<p class="lead">Select the maximum kill distance (in hammer units):</p>
-					<div class="text-center">
-						<form name="maxDistForm">
-							<input name="limit" type="number" ng-model="filters.maxdist" min="0" required></input>
-						</form>
-					</div>
-					<div class="clearfix modal-save-buttons">
-						<div class="pull-right">
-							<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
-							<button class="btn-success btn" type="button" ng-disabled="!maxDistForm.limit.$valid" ng-click="addFilter('maxdist', filters.maxdist)">Add Filter</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</script>
-		<script type="text/ng-template" id="templates/errorModal.html">
-			<div class="modal-header">
-				<button class="close" ng-click="$dismiss('closed')" type="button">
-					<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="sr-only">Close</span>
-				</button>
-				<h2 class="modal-title">Error Detected: {{ type }}</h2>
-			</div>
-			<div class="modal-body">
-				<div class="ng-hide" ng-show="type == 'ErrWebGL'"> 
-					<p>We're sorry, but your browser is currently unsupported. The following browsers are known to work with heatmaps.tf</p>
-					<ul>
-						<li>Firefox 29+</li>
-						<li>Chrome 30+</li>
-						<li>Opera 23+</li>
-						<li>IE 11+</li>
-					</ul>
-					<p>Error Details: {{ reason }}</p>
-					<p>This error may not be fatal and we will attempt to continue.</p>
-					<h3>Troubleshooting</h3>
-					<p>If you're using a supported browser <a href="http://get.webgl.org/">check that WebGL is enabled</a></p>
-				</div>
-				<div class="ng-hide" ng-show="type == 'ErrNetwork'"> 
-					<p>We're sorry, but we've encountered a network error while communicating with the heatmaps.tf API.</p>
-					 
-					<p>Error Details: {{ reason }}</p>
-					<p>This error is fatal. Please try again later.</p>
-				</div>
-			</div>
-		</script>
-		<script type="text/ng-template" id="templates/providerModal.html">
-			<div class="modal-header">
-				<button class="close" ng-click="$dismiss('closed')" type="button">
-					<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="sr-only">Close</span>
-				</button>
-				<h2 class="modal-title">Data Provider: {{ providerName }}</h2>
-			</div>
-			<div class="modal-body">
-				<div class="ng-hide" ng-show="providerName == 'Kritzkast'"> 
-					<img class="pull-right" src="http://heatmaps.tf/images/providers/kk_small.png" />
-					<p class="lead">Kritzkast is the leading community podcast for TF2, with over 250 episodes spanning 5 years of TF2's history. An eccentric cacophony of hosts chimes in on the latest updates, community news and gossip every Sunday over at <a href="http://kritzkast.com">Kritzkast.com</a></p>
-					<h3>Servers</h3>
-					<ul>
-						<li><a href="steam://connect/91.227.221.82:27016">Kritzkast UK #4 - Payload</a></li>
-					</ul>
-				</div>
-				<div class="ng-hide" ng-show="providerName == 'TF2Maps.net'"> 
-					<img class="pull-right" src="http://heatmaps.tf/images/providers/tf2m_small.png" />
-					<p class="lead"><a href="http://tf2maps.net">TF2Maps.net</a> is the largest and longest running TF2 Mapping website on the web, having provided the community with a location to discuss, create and play new custom maps since 2007.</p>
-					<h3>Servers</h3>
-					<ul
-						<li><a href="steam://connect/eu.tf2maps.net">TF2Maps.net | Europe 1</a></li>
-						<li><a href="steam://connect/eu.tf2maps.net:27017">TF2Maps.net | Europe 2</a></li>
-						<li><a href="steam://connect/eu.tf2maps.net:27018">TF2Maps.net | Europe 3</a></li>
-						<li><a href="steam://connect/eu.tf2maps.net:27016">TF2Maps.net | MVM</a></li>
-						<li><a href="steam://connect/usa.tf2maps.net">TF2Maps.net | US</a></li>
-						<li><a href="steam://connect/27.50.72.254:27055">TF2Maps.net | AUS</a></li>
-					</ul>
-				</div>
-				<div class="ng-hide" ng-show="providerName == 'Edge Gamers'"> 
-					<img class="pull-right" src="http://heatmaps.tf/images/providers/ego_small.png" />
-					<p class="lead"><a href="http://www.edge-gamers.com">Edge Gamers</a> doesn't have a description yet!</p>
-					<h3>Servers</h3>
-					<ul>
-						<li><a href="steam://connect/67.228.79.219:27015">=(eGO)= 24/7 SNOWPLOW [US]</a></li>
-						<li><a href="steam://connect/184.173.219.130:27015">=(eGO)= 24/7 2FORT</a></li>
-						<li><a href="steam://connect/67.228.79.218:27015">=(eGO)= 24/7 DUSTBOWL</a></li>
-						<li><a href="steam://connect/184.173.219.128:27015">=(eGO)= 24/7 FOUNDRY</a></li>
-						<li><a href="steam://connect/184.173.219.129:27015">=(eGO)= 24/7 HIGHTOWER</a></li>
-						<li><a href="steam://connect/67.228.175.240:27015">=(eGO)= 24/7 HARVEST</a></li>
-						<li><a href="steam://connect/67.228.79.216:27015">=(eGO)= 24/7 EGYPT</a></li>
-					</ul>
-				</div>
-				<div class="ng-hide" ng-show="providerName == 'TF2Pickup.net'"> 
-					<img class="pull-right" src="http://heatmaps.tf/images/providers/tf2pickup_small.png" />
-					<p class="lead"><a href="http://tf2pickup.net">TF2Pickup</a> is the website for web-based competitive Team Fortress 2 pickup games, with official league rulesets including 6v6, Highlander, Ultiduo, and BBall. All of TF2Pickup's servers are equipped with the Heatmaps.tf plugin.</p>
-				</div>
-				<div class="ng-hide" ng-show="providerName == 'TF2 Newbs'"> 
-					<img class="pull-right" src="http://heatmaps.tf/images/providers/tf2newbs_small.png" />
-					<p class="lead"><a href="http://tf2newbs.com">TF2 Newbs</a> is a TF2 Community whose primary goal is fun. TF2 Newbs is vibrant community, with staff and members who work very hard to ensure that all of their servers maintain an open, welcoming environment where nobody feels put out or made fun of out of malice.</p>
-					<h3>Servers</h3>
-					<ul>
-						<li><a href="steam://connect/67.214.106.61:27015">2Fort [Tulsa]</a></li>
-						<li><a href="steam://connect/208.64.36.13:27015">Trade Server [Detroit]</a></li>
-						<li><a href="steam://connect/199.230.104.3:27015">Badwater [Los Angeles]</a></li>
-						<li><a href="steam://connect/209.40.104.150:27015">2fort (Octo-land) [Virgina]</a></li>
-						<li><a href="steam://connect/199.230.104.4:27015">2fort (Koans) [Los Angeles]</a></li>
-						<li><a href="steam://connect/199.230.104.5:27015">Rotation [Los Angeles]</a></li>
-						<li><a href="steam://connect/67.214.106.62:27015">Badwater [Tulsa]</a></li>
-						<li><a href="steam://connect/199.230.104.6:27015">Dustbowl [Los Angeles]</a></li>
-						<li><a href="steam://connect/208.64.36.9:27015">2fort [Detroit]</a></li>
-						<li><a href="steam://connect/208.64.36.11:27015">Koth Nucleus [Detroit]</a></li>
-						<li><a href="steam://connect/74.121.182.162:27015">2fort [Chicago]</a></li>
-						<li><a href="steam://connect/216.231.142.226:27015">Dustbowl [Chicago]</a></li>
-						<li><a href="steam://connect/216.231.142.227:27015">24/7 Harvest [Chicago]</a></li>
-						<li><a href="steam://connect/208.64.36.10:27015">Goldrush [Detroit]</a></li>
-						<li><a href="steam://connect/209.40.104.151:27015">Dustbowl [Virgina]</a></li>
-						<li><a href="steam://connect/209.40.104.152:27015">Gravelpit [Virgina]</a></li>
-						<li><a href="steam://connect/209.40.104.153:27015">Payload Rotation [Virgina]</a></li>
-						<li><a href="steam://connect/208.64.36.12:27015">Trade Server #2 [Detroit]</a></li>
-						<li><a href="steam://connect/209.40.104.154:27015">2fort (Octo-land2) [Virginia]</a></li>
-						<li><a href="steam://connect/199.230.104.7:27015">Sniperz Ridge [Los Angeles]</a></li>
-						<li><a href="steam://connect/199.230.104.8:27015">2fort [Los Angeles]</a></li>
-						<li><a href="steam://connect/209.40.104.155:27015">Jump Server [Virginia]</a></li>
-						<li><a href="steam://connect/209.40.104.159:27015">Jump Server [Virginia]</a></li>
-						<li><a href="steam://connect/199.230.104.2:27015">Jump Server [Los Angeles]</a></li>
-						<li><a href="steam://connect/199.230.104.9:27015">UGC [West]</a></li>
-						<li><a href="steam://connect/209.40.104.160:27015">(Ninjas) [Virgina]</a></li>
-					</ul>
-				</div>
-			</div>
-		</script>
-		<script type="text/ng-template" id="templates/aboutModal.html">
-			<div class="modal-header">
-				<button class="close" ng-click="$dismiss('closed')" type="button">
-					<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
-					<span class="sr-only">Close</span>
-				</button>
-				<h2 class="modal-title">About Heatmaps.tf</h2>
-			</div>
-			<div class="modal-body">
-				<p>Hi</p>
-			</div>
-		</script>
-		<script>
-		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/css/heatmaps.css?v=1.06" rel="stylesheet" />
 
-		  ga('create', 'UA-36587655-3', 'auto');
-		  ga('send', 'pageview');
+    <base href="http://heatmaps.tf/" />
 
-		</script>
-	</body>
+    <!-- Favicons -->
+    <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.15/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.15/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-beta.15/angular-animate.min.js"></script>
+    <script src="/js/angular-bootstrap.min.js"></script>
+    <script src="/js/heatmaps.js?v=1.07"></script>
+    <script src="/js/webgl-heatmap.js?v=1.07"></script>
+  </head>
+  <body>
+    <div class="container-fluid" style="height: 100%">
+      <div class="hidden-lg">
+        <img
+          src="/images/heatmaps_logo.png"
+          class="img-responsive center-block"
+          alt="Heatmaps.tf logo"
+          height="70"
+          width="215"
+        />
+      </div>
+      <div class="row" style="height: 100%">
+        <!-- MIDDLE COLUMN -->
+        <div class="col-lg-8 col-lg-offset-2 text-center" id="overview-container">
+          <canvas id="overview-canvas" width="1280" height="1024"></canvas>
+          <canvas id="webgl-canvas" width="1280" height="1024"></canvas>
+          <div id="overview-loader" class="h2 ng-hide" ng-show="loadingVisible">Loading...</div>
+        </div>
+
+        <!-- LEFT COLUMN -->
+        <div id="map-list" class="col-lg-2 col-sm-6">
+          <div class="header">
+            <img
+              src="/images/heatmaps_logo.png"
+              class="img-responsive center-block visible-lg"
+              alt="Heatmaps.tf logo"
+              height="70"
+              width="215"
+            />
+            <h2 class="hidden-lg">Map List</h2>
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Map Search&hellip;"
+                ng-model="mapSearchQuery"
+                ng-change="mapToStartAt=0"
+              />
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"><span class="glyphicon glyphicon-search"></span></button>
+              </span>
+            </div>
+          </div>
+
+          <ul class="nav nav-pills nav-stacked maps">
+            <li style="display: none"></li>
+            <li
+              class="map"
+              ng-repeat="map in maps | filter: mapListCountFilter | filter: {name: mapSearchQuery} | startAt: mapToStartAt | limitTo: mapsToList"
+              ng-class="{active:map.isActive}"
+            >
+              <a ng-href="/{{map.name}}" ng-click="updateMapList(map.index)">
+                <h4>{{map.name}}</h4>
+                <strong
+                  ><ng-pluralize
+                    count="map.kill_count"
+                    when="{'one': '1 death',
+									'other': '{} deaths'}"
+                  >
+                  </ng-pluralize
+                ></strong>
+              </a>
+            </li>
+          </ul>
+          <div class="row" ng-show="maps">
+            <div class="col-xs-2 text-left paginationArrow">
+              <a href="#" ng-hide="mapToStartAt <= 0" ng-click="mapToStartAt =  mapToStartAt - mapsToList"
+                ><span class="glyphicon glyphicon-arrow-left"></span
+              ></a>
+            </div>
+            <div class="col-xs-8 text-center paginationText">
+              Page {{ Math.floor((mapToStartAt / mapsToList) + 1) }} of {{ Math.ceil((maps | filter: mapListCountFilter
+              | filter: {name: mapSearchQuery}).length / mapsToList) }}
+            </div>
+            <div class="col-xs-2 text-right paginationArrow">
+              <a
+                href="#"
+                ng-hide="mapToStartAt + mapsToList > (maps | filter: mapListCountFilter | filter: {name: mapSearchQuery}).length"
+                ng-click="mapToStartAt =  mapToStartAt + mapsToList"
+                ><span class="glyphicon glyphicon-arrow-right"></span
+              ></a>
+            </div>
+          </div>
+
+          <div id="footer" class="text-center visible-lg">
+            <hr />
+            <a href="http://geit.co.uk">
+              <img src="/images/r_logo_32.png" style="vertical-align: middle" />
+            </a>
+
+            <small class="text-muted version"
+              ><a ng-click="openAboutModal()" href="#">About</a> &mdash;<a
+                target="_self"
+                href="http://heatmaps.tf/api.html"
+                >API Docs</a
+              >
+              &mdash; v{{version}}</small
+            >
+            <span ng-view></span>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div id="heatmap-controls" class="col-lg-2 col-sm-6">
+          <h2>Controls</h2>
+          <div>
+            <label for="intensity-slider">Intensity</label>
+            <div
+              class="slider"
+              id="intensity-slider"
+              popover="Controls the intensity of each kill."
+              popover-placement="left"
+              popover-trigger="mouseenter"
+            ></div>
+            <label for="intensity-slider">Radius</label>
+            <div
+              class="slider"
+              id="radius-slider"
+              popover="Controls the radius, in pixels, of each kill. Current Value: {{ mapData.map_data.radius }}px"
+              popover-placement="left"
+              popover-trigger="mouseenter"
+            ></div>
+          </div>
+
+          <h2>Filters</h2>
+          <div>
+            <p>Filters allow you to narrow down the data displayed. Give them a try!</p>
+            <div class="text-center" style="margin-bottom: 10px">
+              <div class="btn-group">
+                <button
+                  type="button"
+                  class="btn btn-primary active"
+                  ng-model="displayMode"
+                  btn-radio="'killers'"
+                  ng-change="fetchKillData(mapData.map_data.name)"
+                >
+                  Killers
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  ng-model="displayMode"
+                  btn-radio="'victims'"
+                  ng-change="fetchKillData(mapData.map_data.name)"
+                >
+                  Victims
+                </button>
+              </div>
+            </div>
+            <ul>
+              <li class="filter-entry" ng-repeat="(filterName, filterData) in currentFilters">
+                {{ stringifyFilter(filterName, filterData) }}
+                <a href="#" style="color: red" ng-click="removeFilter(filterName)"
+                  ><span class="glyphicon glyphicon-remove"></span
+                ></a>
+              </li>
+              <li ng-show="mapData.kills.length > -1">
+                Displaying
+                <ng-pluralize
+                  count="mapData.kills.length"
+                  when="{'one': '1 death', 'other': '{} deaths'}"
+                ></ng-pluralize>
+              </li>
+            </ul>
+            <div class="clearfix">
+              <div class="pull-right">
+                <button class="btn btn-success" ng-click="openFiltersModal()">Add Filter</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- <h2>Data Providers</h2>
+          <div id="data-providers" class="text-center">
+            <a href="#" ng-click="openProviderModal('TF2Maps.net')"
+              ><img src="/images/providers/tf2m_small.png" alt="TF2Maps.net Logo"
+            /></a>
+          </div> -->
+          <label class="btn btn-primary" ng-model="userSuppressDataLayer" btn-checkbox>Hide Data</label>
+          <button id="copy-button" class="btn btn-info" ng-hide="copyButton.isFlashUnavailable()">
+            <span class="glyphicon glyphicon-link"></span> Get Link
+          </button>
+        </div>
+      </div>
+      <div id="footer" class="text-center hidden-lg">
+        <hr />
+        <a href="http://geit.co.uk">
+          <img src="/images/r_logo_32.png" style="vertical-align: middle" />
+        </a>
+
+        <small class="text-muted version"
+          ><a ng-click="openAboutModal()" href="#">About</a> &mdash;<a target="_self" href="http://heatmaps.tf/api.html"
+            >API Docs</a
+          >
+          &mdash; v{{version}}</small
+        >
+      </div>
+    </div>
+    <script type="text/ng-template" id="templates/filterModalMain.html">
+      <div class="modal-header">
+      	<button class="close" ng-click="$dismiss('closed')" type="button">
+      		<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
+      		<span class="sr-only">Close</span>
+      	</button>
+      	<h2 id="filterModalTitle" class="modal-title">{{ currentStageTitle }}</h2>
+      </div>
+      <div class="modal-body">
+      	<div class="ng-hide" ng-show="currentStage == 'main'">
+      		<ul class="list-inline">
+      			<li ng-hide="currentFilters.victim_class">
+      				<button class="btn-primary btn" type="button" ng-click="setStage('victimClassSelect', 'Add Victim Class Filter')">Victim Class</button>
+      			</li>
+      			<li ng-hide="currentFilters.killer_class">
+      				<button class="btn-primary btn" type="button" ng-click="setStage('killerClassSelect', 'Add Killer Class Filter')">Killer Class</button>
+      			</li>
+      			<li ng-hide="currentFilters.killer_team">
+      				<button class="btn-primary btn" type="button" ng-click="setStage('killerTeamSelect', 'Add Killer Team Filter')">Killer Team</button>
+      			</li>
+      			<li ng-hide="currentFilters.limit">
+      				<button class="btn-primary btn" type="button" ng-click="setStage('resultLimitSelect', 'Add Result Limit')">Result Limit</button>
+      			</li>
+      			<li ng-hide="currentFilters.mindist">
+      				<button class="btn-primary btn" type="button" ng-click="setStage('minimumDistanceSelect', 'Add Minimum Distance Filter')">Minimum Distance</button>
+      			</li>
+      			<li ng-hide="currentFilters.maxdist">
+      				<button class="btn-primary btn" type="button" ng-click="setStage('maximumDistanceSelect', 'Add Maximum Distance Filter')">Maximum Distance</button>
+      			</li>
+      			<!--<li>
+      				<button class="btn-primary btn" type="button" ng-click="setStage('notImplemented', 'Add Weapon Filter')">Weapon</button>
+      			</li>-->
+
+      		</ul>
+      	</div>
+      	<div class="ng-hide" ng-show="currentStage == 'notImplemented'">
+      		<p class="lead">Not Implemented!</p>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      			</div>
+      		</div>
+      	</div>
+      	<!-- VICTIM CLASS -->
+      	<div class="ng-hide" ng-show="currentStage == 'victimClassSelect'">
+      		<p class="lead">Select the classes you would like to display data for:</p>
+      		<div class="text-center">
+      			<div class="btn-group ">
+      				<label class="btn btn-primary" ng-repeat="className in filters.victim_class | keys" ng-model="filters.victim_class[className]" btn-checkbox>{{className | capitalize}}</label>
+      			</div>
+      		</div>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      				<button class="btn-success btn" type="button" ng-click="addFilter('victim_class', classObjectToArray(filters.victim_class))">Add Filter</button>
+      			</div>
+      		</div>
+      	</div>
+      	<!-- KILLER CLASS -->
+      	<div class="ng-hide" ng-show="currentStage == 'killerClassSelect'">
+      		<p class="lead">Select the classes you would like to display data for:</p>
+      		<div class="text-center">
+      			<div class="btn-group ">
+      				<label class="btn btn-primary" ng-repeat="className in filters.killer_class | keys" ng-model="filters.killer_class[className]" btn-checkbox>{{className | capitalize}}</label>
+      			</div>
+      		</div>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      				<button class="btn-success btn" type="button" ng-click="addFilter('killer_class', classObjectToArray(filters.killer_class))">Add Filter</button>
+      			</div>
+      		</div>
+      	</div>
+      	<!-- KILLER TEAM -->
+      	<div class="ng-hide" ng-show="currentStage == 'killerTeamSelect'">
+      		<p class="lead">Select the team the killer should be on:</p>
+      		<div class="text-center">
+      			<div class="btn-group">
+      				<label class="btn btn-danger" ng-model="filters.killer_team" btn-radio="'red'">RED</label>
+      				<label class="btn btn-primary" ng-model="filters.killer_team" btn-radio="'blu'">BLU</label>
+      			</div>
+      		</div>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      				<button class="btn-success btn" type="button" ng-click="addFilter('killer_team', filters.killer_team)">Add Filter</button>
+      			</div>
+      		</div>
+      	</div>
+      	<!-- RESULT LIMIT -->
+      	<div class="ng-hide" ng-show="currentStage == 'resultLimitSelect'">
+      		<p class="lead">Select the maximum number of results to fetch:</p>
+      		<p>Note: You'll always get the most recent kills with a result limit.</p>
+      		<div class="text-center">
+      			<form name="resultLimitForm">
+      				<input name="limit" type="number" ng-model="filters.limit" min="0" required></input>
+      			</form>
+      		</div>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      				<button class="btn-success btn" type="button" ng-disabled="!resultLimitForm.limit.$valid" ng-click="addFilter('limit', filters.limit)">Add Filter</button>
+      			</div>
+      		</div>
+      	</div>
+      	<!-- MINIMUM DISTANCE -->
+      	<div class="ng-hide" ng-show="currentStage == 'minimumDistanceSelect'">
+      		<p class="lead">Select the minimum kill distance (in hammer units):</p>
+      		<div class="text-center">
+      			<form name="minDistForm">
+      				<input name="limit" type="number" ng-model="filters.mindist" min="1" required></input>
+      			</form>
+      		</div>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      				<button class="btn-success btn" type="button" ng-disabled="!minDistForm.limit.$valid" ng-click="addFilter('mindist', filters.mindist)">Add Filter</button>
+      			</div>
+      		</div>
+      	</div>
+      	<!-- MAXIMUM DISTANCE -->
+      	<div class="ng-hide" ng-show="currentStage == 'maximumDistanceSelect'">
+      		<p class="lead">Select the maximum kill distance (in hammer units):</p>
+      		<div class="text-center">
+      			<form name="maxDistForm">
+      				<input name="limit" type="number" ng-model="filters.maxdist" min="0" required></input>
+      			</form>
+      		</div>
+      		<div class="clearfix modal-save-buttons">
+      			<div class="pull-right">
+      				<button class="btn-danger btn" type="button" ng-click="setStage('main', 'Filter Types')">Return</button>
+      				<button class="btn-success btn" type="button" ng-disabled="!maxDistForm.limit.$valid" ng-click="addFilter('maxdist', filters.maxdist)">Add Filter</button>
+      			</div>
+      		</div>
+      	</div>
+      </div>
+    </script>
+    <script type="text/ng-template" id="templates/errorModal.html">
+      <div class="modal-header">
+      	<button class="close" ng-click="$dismiss('closed')" type="button">
+      		<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
+      		<span class="sr-only">Close</span>
+      	</button>
+      	<h2 class="modal-title">Error Detected: {{ type }}</h2>
+      </div>
+      <div class="modal-body">
+      	<div class="ng-hide" ng-show="type == 'ErrWebGL'">
+      		<p>We're sorry, but your browser is currently unsupported. The following browsers are known to work with heatmaps.tf</p>
+      		<ul>
+      			<li>Firefox 29+</li>
+      			<li>Chrome 30+</li>
+      			<li>Opera 23+</li>
+      			<li>IE 11+</li>
+      		</ul>
+      		<p>Error Details: {{ reason }}</p>
+      		<p>This error may not be fatal and we will attempt to continue.</p>
+      		<h3>Troubleshooting</h3>
+      		<p>If you're using a supported browser <a href="http://get.webgl.org/">check that WebGL is enabled</a></p>
+      	</div>
+      	<div class="ng-hide" ng-show="type == 'ErrNetwork'">
+      		<p>We're sorry, but we've encountered a network error while communicating with the heatmaps.tf API.</p>
+
+      		<p>Error Details: {{ reason }}</p>
+      		<p>This error is fatal. Please try again later.</p>
+      	</div>
+      </div>
+    </script>
+    <script type="text/ng-template" id="templates/providerModal.html">
+      <div class="modal-header">
+      	<button class="close" ng-click="$dismiss('closed')" type="button">
+      		<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
+      		<span class="sr-only">Close</span>
+      	</button>
+      	<h2 class="modal-title">Data Provider: {{ providerName }}</h2>
+      </div>
+      <div class="modal-body">
+      	<div class="ng-hide" ng-show="providerName == 'TF2Maps.net'">
+      		<img class="pull-right" src="http://heatmaps.tf/images/providers/tf2m_small.png" />
+      		<p class="lead"><a href="http://tf2maps.net">TF2Maps.net</a> is the largest and longest running TF2 Mapping website on the web, having provided the community with a location to discuss, create and play new custom maps since 2007.</p>
+      		<h3>Servers</h3>
+      		<ul>
+      		</ul>
+      	</div>
+      </div>
+    </script>
+    <script type="text/ng-template" id="templates/aboutModal.html">
+      <div class="modal-header">
+      	<button class="close" ng-click="$dismiss('closed')" type="button">
+      		<span aria-hidden="true"><span class="glyphicon glyphicon-remove"></span></span>
+      		<span class="sr-only">Close</span>
+      	</button>
+      	<h2 class="modal-title">About Heatmaps.tf</h2>
+      </div>
+      <div class="modal-body">
+      	<p>Hi</p>
+      </div>
+    </script>
+  </body>
 </html>

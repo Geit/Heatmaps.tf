@@ -59,6 +59,7 @@ heatmaps.controller('HeatmapsGlobal',
 	var heatmapBackgroundCanvas = $('#overview-canvas')[0];
 	var heatmap;
 	var backgroundImage = new Image();
+	var backgroundImgLoaded = false;
 	
 	var requestAnimationFrameShim = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 	
@@ -148,6 +149,8 @@ heatmaps.controller('HeatmapsGlobal',
 	$scope.fetchKillData = function(mapName) {
 		recalculateMapListSize($scope);
 		backgroundImage.src = '/images/maps/' + mapName + '.jpg';
+		backgroundImgLoaded = false;
+		backgroundImage.onload = () => { backgroundImgLoaded = true };
 		$scope.loadingVisible = true;
 		var url = buildUrl(mapName);
 		
@@ -374,7 +377,9 @@ heatmaps.controller('HeatmapsGlobal',
 		redrawDataLayer();
 		
 		ctx.clearRect(0, 0, heatmapBackgroundCanvas.width, heatmapBackgroundCanvas.height);		
-		ctx.drawImage(backgroundImage, heatmapData.zoom.originX, heatmapData.zoom.originY, backgroundImage.width/heatmapData.zoom.scaleFactor, backgroundImage.height/heatmapData.zoom.scaleFactor, 0, 0, heatmapBackgroundCanvas.width, heatmapBackgroundCanvas.height);			
+		if(backgroundImgLoaded)
+			ctx.drawImage(backgroundImage, heatmapData.zoom.originX, heatmapData.zoom.originY, backgroundImage.width/heatmapData.zoom.scaleFactor, backgroundImage.height/heatmapData.zoom.scaleFactor, 0, 0, heatmapBackgroundCanvas.width, heatmapBackgroundCanvas.height);			
+
 		if(!heatmapData.suppressDataLayer && !$scope.userSuppressDataLayer) {
 			ctx.globalAlpha = 0.5;
 			ctx.drawImage(heatmapWebGLCanvas, 0, 0, heatmapWebGLCanvas.width, heatmapWebGLCanvas.height, 0, 0, heatmapBackgroundCanvas.width, heatmapBackgroundCanvas.height);

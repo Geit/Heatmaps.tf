@@ -1,7 +1,10 @@
 const heatmaps = angular.module('heatmaps', ['ngRoute', 'ngAnimate', 'ui.bootstrap']);
 
-const CANVAS_WIDTH = 1280;
-const CANVAS_HEIGHT = 1024;
+const CANVAS_WIDTH = 1920;
+const CANVAS_HEIGHT = 1080;
+
+const CORRECTION_X = CANVAS_WIDTH / 1280;
+const CORRECTION_Y = CANVAS_HEIGHT / 1080;
 
 heatmaps.run(function ($rootScope) {
   $rootScope.version = '1.07';
@@ -332,8 +335,8 @@ heatmaps.controller('HeatmapsGlobal', [
 
       for (var i = 0; i < $scope.mapData.kills.length; i++) {
         if ($scope.mapData.kills[i][2] == 0 && $scope.displayMode == 'killers') continue;
-        var x = ($scope.mapData.kills[i][0] - $scope.mapData.map_data.offset_x) / scale;
-        var y = -(($scope.mapData.kills[i][1] - $scope.mapData.map_data.offset_y) / scale);
+        var x = ($scope.mapData.kills[i][0] - $scope.mapData.map_data.offset_x * CORRECTION_X) / scale;
+        var y = -(($scope.mapData.kills[i][1] - $scope.mapData.map_data.offset_y * CORRECTION_Y) / scale);
 
         x = (x - heatmapData.zoom.originX) * heatmapData.zoom.scaleFactor;
         y = (y - heatmapData.zoom.originY) * heatmapData.zoom.scaleFactor;

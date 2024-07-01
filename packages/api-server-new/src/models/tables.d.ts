@@ -9,6 +9,7 @@ declare module 'knex/types/tables' {
 
   interface KillsTable {
     id: number;
+    map_id: number;
     timestamp: number;
     killer_class: number;
     killer_weapon: number;
@@ -25,10 +26,17 @@ declare module 'knex/types/tables' {
     team: number;
   }
 
-  interface LinesTable {}
+  interface LinesTable {
+    map_id: number;
+    state: string;
+    class: number;
+    team: number;
+    data: Buffer;
+  }
 
   interface Tables {
     maps: MapsTable;
     kills: KillsTable;
+    new_player_lines: LinesTable;
   }
 }

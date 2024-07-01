@@ -1,4 +1,8 @@
-var heatmaps = angular.module('heatmaps', ['ngRoute', 'ngAnimate', 'ui.bootstrap']);
+const heatmaps = angular.module('heatmaps', ['ngRoute', 'ngAnimate', 'ui.bootstrap']);
+
+
+const CANVAS_WIDTH = 1280;
+const CANVAS_HEIGHT = 1024;
 
 heatmaps.run(function($rootScope) {
     $rootScope.version = '1.07';
@@ -206,10 +210,10 @@ heatmaps.controller('HeatmapsGlobal',
 	}
 	
 	var setupCanvases = function() {
-		heatmapBackgroundCanvas.width = 1280;
-		heatmapBackgroundCanvas.height = 1024;
-		heatmapWebGLCanvas.width = 1280;
-		heatmapWebGLCanvas.height = 1024;
+		heatmapBackgroundCanvas.width = CANVAS_WIDTH;
+		heatmapBackgroundCanvas.height = CANVAS_HEIGHT;
+		heatmapWebGLCanvas.width = CANVAS_WIDTH;
+		heatmapWebGLCanvas.height = CANVAS_HEIGHT;
 		var ctx = heatmapBackgroundCanvas.getContext('2d');
 			
 		try {
@@ -304,19 +308,17 @@ heatmaps.controller('HeatmapsGlobal',
 	}
 	
 	var dataToDraw = [],
-		pointsDrawn = 0,
-		wasClean = true;
+		pointsDrawn = 0;
 		
 	var getDataInBounds = function(){
-		var multiplier = heatmapBackgroundCanvas.width/1280;
-		var scale = $scope.mapData.map_data.scale/multiplier;
+		const multiplier = heatmapBackgroundCanvas.width/CANVAS_WIDTH;
+		const scale = $scope.mapData.map_data.scale/multiplier;
 		
 		var minPoint = - $scope.mapData.map_data.radius,
-			maxPointY = 1024 + $scope.mapData.map_data.radius,
-			maxPointX = 1280 + $scope.mapData.map_data.radius;
+			maxPointY = CANVAS_HEIGHT + $scope.mapData.map_data.radius,
+			maxPointX = CANVAS_WIDTH + $scope.mapData.map_data.radius;
 		
-		var ctx = heatmapBackgroundCanvas.getContext('2d');
-		console.log(heatmapData);
+		console.log(heatmapData, multiplier, scale);
 		for(var i = 0; i < $scope.mapData.kills.length; i++)
 		{
 			if($scope.mapData.kills[i][2] == 0 && $scope.displayMode == 'killers') continue;
@@ -333,7 +335,7 @@ heatmaps.controller('HeatmapsGlobal',
 	}
 	
 	var redrawDataLayer = function(){
-		if (heatmapData.isDataLayerDirty && typeof(heatmap) != "undefined") {
+		if (heatmapData.isDataLayerDirty && typeof heatmap !== "undefined") {
 			pointsDrawn = 0;
 			dataToDraw = [];
 			
@@ -353,7 +355,6 @@ heatmaps.controller('HeatmapsGlobal',
 			$scope.mapData.map_data.radius = Math.round(($("#radius-slider").val() * heatmapData.zoom.scaleFactor) * 100 ) /  100;
 			$scope.mapData.map_data.intensity = $("#intensity-slider").val()/1000;
 			
-			var ctx = heatmapBackgroundCanvas.getContext('2d');
 			var pointsToDrawInFrame = Math.min(dataToDraw.length, heatmapData.maxKillsPerFrame + pointsDrawn);
 			
 			for(; pointsDrawn < pointsToDrawInFrame; pointsDrawn++)
@@ -397,7 +398,7 @@ heatmaps.controller('HeatmapsGlobal',
 		
 		var spacerOffset = $(this).offset();
 		
-		var pageResizeFactor = 1280/$('#overview-canvas').width();
+		var pageResizeFactor = CANVAS_WIDTH/$('#overview-canvas').width();
 		
 		var clientX = (e.originalEvent.clientX - spacerOffset.left) * pageResizeFactor,
 			clientY = (e.originalEvent.clientY - spacerOffset.top) * pageResizeFactor;
@@ -411,8 +412,8 @@ heatmaps.controller('HeatmapsGlobal',
 		
 		heatmapData.zoom.originX = ( clientX / heatmapData.zoom.scaleFactor + heatmapData.zoom.originX - clientX / newScaleFactor );
 		heatmapData.zoom.originY = ( clientY / heatmapData.zoom.scaleFactor + heatmapData.zoom.originY - clientY / newScaleFactor );
-		heatmapData.zoom.originX = Math.max(Math.min(heatmapData.zoom.originX, 1280 - (1280/heatmapData.zoom.scaleFactor)), 0);
-		heatmapData.zoom.originY = Math.max(Math.min(heatmapData.zoom.originY, 1024 - (1024/heatmapData.zoom.scaleFactor)), 0);
+		heatmapData.zoom.originX = Math.max(Math.min(heatmapData.zoom.originX, CANVAS_WIDTH - (CANVAS_WIDTH/heatmapData.zoom.scaleFactor)), 0);
+		heatmapData.zoom.originY = Math.max(Math.min(heatmapData.zoom.originY, CANVAS_HEIGHT - (CANVAS_HEIGHT/heatmapData.zoom.scaleFactor)), 0);
 		
 		if(heatmapData.zoom.scaleFactor !=  newScaleFactor) {
 			heatmapData.suppressDataLayer = true;
@@ -438,13 +439,13 @@ heatmaps.controller('HeatmapsGlobal',
 			
 			var xDiff = $scope.lastX - e.pageX,
 				yDiff = $scope.lastY - e.pageY;
-			var pageResizeFactor = 1280/$('#overview-canvas').width();
+			var pageResizeFactor = CANVAS_WIDTH/$('#overview-canvas').width();
 			var originalX = heatmapData.zoom.originX,
 				originalY = heatmapData.zoom.originY;
 			heatmapData.zoom.originX += (xDiff / heatmapData.zoom.scaleFactor * pageResizeFactor);
 			heatmapData.zoom.originY += (yDiff / heatmapData.zoom.scaleFactor * pageResizeFactor);
-			heatmapData.zoom.originX = Math.max(Math.min(heatmapData.zoom.originX, 1280 - (1280/heatmapData.zoom.scaleFactor)), 0);
-			heatmapData.zoom.originY = Math.max(Math.min(heatmapData.zoom.originY, 1024 - (1024/heatmapData.zoom.scaleFactor)), 0);
+			heatmapData.zoom.originX = Math.max(Math.min(heatmapData.zoom.originX, CANVAS_WIDTH - (CANVAS_WIDTH/heatmapData.zoom.scaleFactor)), 0);
+			heatmapData.zoom.originY = Math.max(Math.min(heatmapData.zoom.originY, CANVAS_HEIGHT - (CANVAS_HEIGHT/heatmapData.zoom.scaleFactor)), 0);
 			
 			if(originalX != heatmapData.zoom.originX || originalY != heatmapData.zoom.originY)
 			{

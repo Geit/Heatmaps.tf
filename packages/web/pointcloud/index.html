@@ -106,16 +106,16 @@
 
       function getKills(offset) {
         var map = typeof urlParams['map'] != 'undefined' ? urlParams['map'] : 'koth_viaduct';
-        var classes = typeof urlParams['classes'] != 'undefined' ? urlParams['classes'] : '[1,2,3,4,5,6,7,8,9]';
+        var classes = typeof urlParams['classes'] != 'undefined' ? urlParams['classes'] : '1,2,3,4,5,6,7,8,9';
         $.getJSON(
-          '/data/maps/' +
+          '/data/kills/' +
             map +
-            '/kills?fields=["killer_x","killer_y","killer_z","killer_class"]&limit=5000&offset=' +
+            '/.json?fields=killer_x,killer_y,killer_z,killer_class&limit=5000&offset=' +
             offset +
             '&killer_class=' +
             classes,
           function (data) {
-            kills = data.data; //.slice(0, 1000000);
+            kills = data.kills; //.slice(0, 1000000);
             if (kills.count == 0) return;
             var geometry = new THREE.Geometry();
             for (var i = 0; i < kills.length; i++) {

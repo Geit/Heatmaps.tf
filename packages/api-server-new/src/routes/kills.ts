@@ -28,8 +28,16 @@ const killsSchema = z.object({
     .default('victim_x,victim_y,team')
     .transform(value => value.split(','))
     .pipe(z.array(z.enum(validKillFields))),
-  victim_class: z.array(z.number().int().min(0).max(9)).min(1).optional(),
-  killer_class: z.array(z.number().int().min(0).max(9)).min(1).optional(),
+  victim_class: z
+    .string()
+    .optional()
+    .transform(v => v?.split(','))
+    .pipe(z.number().int().min(0).max(9)),
+  killer_class: z
+    .string()
+    .optional()
+    .transform(v => v?.split(','))
+    .pipe(z.number().int().min(0).max(9)),
   killer_team: z.coerce.number().int().min(0).max(3).optional(),
   min_dist: z.coerce.number().int().min(1).optional(),
   max_dist: z.coerce.number().int().min(2).optional(),
